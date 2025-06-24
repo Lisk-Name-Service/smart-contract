@@ -16,15 +16,14 @@ contract LiskNameServiceV2 is Initializable, OwnableUpgradeable, ReentrancyGuard
     mapping(string => Name) public names;
     mapping(address => uint256) public pendingRefunds;
     address public feeRecipient; // Mitigate DoS
-    uint256 public constant NAME_MAX_LENGTH = 18;
+    uint256 public constant MAX_NAME_LENGTH = 18;
     uint256 public constant RENEWAL_PERIOD = 365 days;
-    uint256 public constant MIN_FEE = 1_000_000_000_000_000;
-    // uint256 public constant MAX_FEE = 10 ether;
+    uint256 public constant MIN_FEE = 25_000_000_000_000_000;
+   
     uint256 public constant MIN_NAME_LENGTH = 3;
-	uint256 public constant BASE_PRICE = 100_000_000_000_000; // 0.00010 ether
+	uint256 public constant BASE_PRICE = 100_000_000_000_000_000; // 0.1 ether
 	uint256 public constant MAX_FEE = 100_000_000_000_000_000; // 0.1 ether
-    // uint256 public constant BASE_PRICE = 10 ether;
-    uint256 public constant PRICE_REDUCTION_PER_LETTER = 1_000_000_000_000;
+    uint256 public constant PRICE_REDUCTION_PER_LETTER = 10_000_000_000_000_000;
 
     event NameRegistered(string indexed name, address indexed owner);
     event NameRenewed(string indexed name, uint256 newExpiry);
@@ -57,7 +56,7 @@ contract LiskNameServiceV2 is Initializable, OwnableUpgradeable, ReentrancyGuard
 
     modifier validName(string memory _name) {
         uint256 nameLength = bytes(_name).length;
-        require(nameLength >= MIN_NAME_LENGTH && nameLength <= NAME_MAX_LENGTH, "Invalid name length");
+        require(nameLength >= MIN_NAME_LENGTH && nameLength <= MAX_NAME_LENGTH, "Invalid name length");
         bytes memory nameBytes = bytes(_name);
         for (uint256 i = 0; i < nameBytes.length; i++) {
             bytes1 char = nameBytes[i];
@@ -86,9 +85,7 @@ contract LiskNameServiceV2 is Initializable, OwnableUpgradeable, ReentrancyGuard
         if (price < MIN_FEE) {
             return MIN_FEE;
         }
-        if (price > MAX_FEE) {
-            return MAX_FEE;
-        }
+    
         return price;
     }
 
